@@ -26,7 +26,12 @@ app.use("/api/seo", seoRoutes);
 
 // ================= ROOT ROUTE =================
 app.get("/", (req, res) => {
-  res.send("SEO SAAS Backend Running 🚀");
+  res.status(200).send("SEO SAAS Backend Running 🚀");
+});
+
+// ================= HEALTH ROUTE =================
+app.get("/health", (req, res) => {
+  res.status(200).send("OK");
 });
 
 // ================= PORT =================
@@ -38,15 +43,15 @@ mongoose
   .then(() => {
     console.log("✅ MongoDB Connected");
 
-    app.listen(PORT, () => {
+    app.listen(PORT, "0.0.0.0", () => {
       console.log(`🚀 Server running on port ${PORT}`);
     });
   })
   .catch((err) => {
     console.log("❌ Mongo Error:", err.message);
 
-    // IMPORTANT: server should still run even if DB fails
-    app.listen(PORT, () => {
+    // DB fail ho jaye tab bhi server chale
+    app.listen(PORT, "0.0.0.0", () => {
       console.log(`⚠️ Server running WITHOUT DB on port ${PORT}`);
     });
   });
