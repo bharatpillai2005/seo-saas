@@ -41,4 +41,6 @@ mongoose
   .catch((err) => {
     console.log("Mongo Error:", err);
   });
-
+app.get("/", (req, res) => {
+  res.send("SEO SAAS Backend Running 🚀");
+});
