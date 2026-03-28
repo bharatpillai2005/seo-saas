@@ -24,29 +24,25 @@ app.use("/api/blog", blogRoutes);
 app.use("/api/ai", aiRoutes);
 app.use("/api/seo", seoRoutes);
 
-// ================= ROOT ROUTE =================
+// ================= ROOT =================
 app.get("/", (req, res) => {
-  res.send("SEO SAAS Backend Running 🚀");
+  res.status(200).send("SEO SAAS Backend Running 🚀");
+});
+
+app.get("/health", (req, res) => {
+  res.status(200).send("OK");
 });
 
 // ================= PORT =================
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 8080;
 
-// ================= DATABASE + SERVER START =================
+// ================= START SERVER FIRST =================
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`🚀 Server running on port ${PORT}`);
+});
+
+// ================= CONNECT DB (separately) =================
 mongoose
   .connect(process.env.MONGO_URI)
-  .then(() => {
-    console.log("✅ MongoDB Connected");
-
-    app.listen(PORT, () => {
-      console.log(`🚀 Server running on port ${PORT}`);
-    });
-  })
-  .catch((err) => {
-    console.log("❌ Mongo Error:", err.message);
-
-    // IMPORTANT: server should still run even if DB fails
-    app.listen(PORT, () => {
-      console.log(`⚠️ Server running WITHOUT DB on port ${PORT}`);
-    });
-  });
+  .then(() => console.log("✅ MongoDB Connected"))
+  .catch((err) => console.log("❌ Mongo Error:", err.message));
