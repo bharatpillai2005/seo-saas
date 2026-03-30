@@ -23,6 +23,7 @@ app.use("/api/user", userRoutes);
 app.use("/api/blog", blogRoutes);
 app.use("/api/ai", aiRoutes);
 app.use("/api/seo", seoRoutes);
+app.use("/api/blog", require("./routes/blogRoutes"));
 
 // ================= ROOT =================
 app.get("/", (req, res) => {
