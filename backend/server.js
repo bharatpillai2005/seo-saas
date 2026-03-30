@@ -36,13 +36,17 @@ app.get("/health", (req, res) => {
 // ================= PORT =================
 const PORT = process.env.PORT || 8080;
 
-// ================= START SERVER FIRST =================
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-});
+// ================= CONNECT DB FIRST =================
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => {
+    console.log("Mongo Connected ✅");
 
-// ================= CONNECT DB (separately) =================
-mongoose
-  .connect(process.env.MONGO_URI)
-  .then(() => console.log("✅ MongoDB Connected"))
-  .catch((err) => console.log("❌ Mongo Error:", err.message));
+    // 🔥 SERVER START AFTER DB
+    app.listen(PORT, "0.0.0.0", () => {
+      console.log(`🚀 Server running on port ${PORT}`);
+    });
+
+  })
+  .catch((err) => {
+    console.log("Mongo Error ❌", err);
+  });
