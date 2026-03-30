@@ -5,19 +5,18 @@ import {
   deleteBlog,
   updateBlog,
 } from "../controllers/blogController.js";
-import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
 
-// 🔥 TEST ROUTE (browser check के लिए)
+// 🔥 TEST ROUTE (browser check)
 router.get("/", (req, res) => {
   res.json({ message: "Blog API Working ✅" });
 });
 
 
-// 🔥 AI Content Generate Route
-router.post("/generate", protect, async (req, res) => {
+// 🔥 AI Content Generate Route (NO AUTH)
+router.post("/generate", async (req, res) => {
   try {
     const { keywords } = req.body;
 
@@ -49,17 +48,17 @@ This is why ${keywords} is important in today's market.
 });
 
 
-// ✅ Create Blog
-router.post("/create", protect, createBlog);
+// ✅ Create Blog (NO AUTH)
+router.post("/create", createBlog);
 
-// ✅ Get My Blogs
-router.get("/my-blogs", protect, getMyBlogs);
+// ✅ Get Blogs (NO AUTH)
+router.get("/my-blogs", getMyBlogs);
 
-// ✅ Update Blog
-router.put("/:id", protect, updateBlog);
+// ✅ Update Blog (NO AUTH)
+router.put("/:id", updateBlog);
 
-// ✅ Delete Blog
-router.delete("/:id", protect, deleteBlog);
+// ✅ Delete Blog (NO AUTH)
+router.delete("/:id", deleteBlog);
 
 
 export default router;
