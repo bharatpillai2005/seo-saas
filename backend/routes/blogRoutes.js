@@ -54,5 +54,7 @@ router.put("/:id", protect, updateBlog);
 // ✅ Delete Blog
 router.delete("/:id", protect, deleteBlog);
 
-
+router.get("/", (req, res) => {
+  res.json({ message: "Blog API working" });
+});
 export default router;
