@@ -10,6 +10,12 @@ import { protect } from "../middleware/authMiddleware.js";
 const router = express.Router();
 
 
+// 🔥 TEST ROUTE (browser check के लिए)
+router.get("/", (req, res) => {
+  res.json({ message: "Blog API Working ✅" });
+});
+
+
 // 🔥 AI Content Generate Route
 router.post("/generate", protect, async (req, res) => {
   try {
@@ -19,8 +25,8 @@ router.post("/generate", protect, async (req, res) => {
       return res.status(400).json({ message: "Keywords are required" });
     }
 
-    // Simple AI response (abhi dummy hai)
-    const content = `AI generated SEO blog content for: ${keywords}
+    const content = `
+AI generated SEO blog content for: ${keywords}
 
 Introduction:
 This blog explains about ${keywords} in detail.
@@ -34,9 +40,10 @@ Conclusion:
 This is why ${keywords} is important in today's market.
 `;
 
-    res.json({ content });
+    res.status(200).json({ success: true, content });
 
   } catch (error) {
+    console.error("AI Error:", error);
     res.status(500).json({ message: "AI generation failed" });
   }
 });
@@ -54,7 +61,5 @@ router.put("/:id", protect, updateBlog);
 // ✅ Delete Blog
 router.delete("/:id", protect, deleteBlog);
 
-router.get("/", (req, res) => {
-  res.send("Blog API Working ✅");
-});
+
 export default router;
