@@ -29,15 +29,18 @@ const userSchema = new mongoose.Schema(
 
     verificationToken: {
       type: String,
+      default: null,
     },
 
     // 🔐 Password Reset
     resetToken: {
       type: String,
+      default: null,
     },
 
     resetTokenExpiry: {
       type: Date,
+      default: null,
     },
 
     // 📊 Login History
@@ -53,4 +56,20 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-export default mongoose.model("User", userSchema);
+
+// 🔥 PASSWORD HASH (AUTO BEFORE SAVE)
+import bcrypt from "bcryptjs";
+
+userSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) return next();
+
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
+
+  next();
+});
+
+
+const User = mongoose.model("User", userSchema);
+
+export default User;

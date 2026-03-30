@@ -3,15 +3,14 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
 
-// 🔥 Generate Token Function
+// 🔥 Generate Token
 const generateToken = (id) => {
   return jwt.sign(
     { id },
-    "secretkey123", // बाद में .env में डालेंगे
+    "secretkey123",
     { expiresIn: "7d" }
   );
 };
-
 
 
 // 🔥 REGISTER USER
@@ -19,7 +18,6 @@ export const registerUser = async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
-    // check fields
     if (!name || !email || !password) {
       return res.status(400).json({
         success: false,
@@ -27,7 +25,6 @@ export const registerUser = async (req, res) => {
       });
     }
 
-    // check if user exists
     const userExists = await User.findOne({ email });
 
     if (userExists) {
@@ -37,15 +34,11 @@ export const registerUser = async (req, res) => {
       });
     }
 
-    // hash password
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-
-    // create user
+    // 🔥 password सीधे save कर (model खुद hash करेगा)
     const user = await User.create({
       name,
       email,
-      password: hashedPassword,
+      password,
     });
 
     res.status(201).json({
@@ -69,13 +62,11 @@ export const registerUser = async (req, res) => {
 };
 
 
-
 // 🔥 LOGIN USER
 export const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // check fields
     if (!email || !password) {
       return res.status(400).json({
         success: false,
@@ -83,7 +74,6 @@ export const loginUser = async (req, res) => {
       });
     }
 
-    // find user
     const user = await User.findOne({ email });
 
     if (!user) {
@@ -93,7 +83,15 @@ export const loginUser = async (req, res) => {
       });
     }
 
-    // compare password
+    // 🔥 safety check
+    if (!user.password) {
+      return res.status(400).json({
+        success: false,
+        message: "Password missing in DB",
+      });
+    }
+
+    // 🔥 compare password
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
@@ -115,7 +113,7 @@ export const loginUser = async (req, res) => {
     });
 
   } catch (error) {
-    console.log("Login Error:", error);
+    console.log("LOGIN ERROR:", error);
     res.status(500).json({
       success: false,
       message: "Something went wrong",
@@ -124,8 +122,7 @@ export const loginUser = async (req, res) => {
 };
 
 
-
-// 🔥 GET PROFILE (OPTIONAL BUT IMPORTANT)
+// 🔥 GET PROFILE
 export const getUserProfile = async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select("-password");
