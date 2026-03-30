@@ -2,7 +2,6 @@ import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
-
 // 🔥 Generate Token
 const generateToken = (id) => {
   return jwt.sign(
@@ -12,11 +11,12 @@ const generateToken = (id) => {
   );
 };
 
-
 // 🔥 REGISTER USER
 export const registerUser = async (req, res) => {
   try {
     const { name, email, password } = req.body;
+
+    console.log("REGISTER BODY:", req.body);
 
     if (!name || !email || !password) {
       return res.status(400).json({
@@ -34,11 +34,14 @@ export const registerUser = async (req, res) => {
       });
     }
 
-    // 🔥 password सीधे save कर (model खुद hash करेगा)
+    // ✅ HASH PASSWORD (IMPORTANT)
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
     const user = await User.create({
       name,
       email,
-      password,
+      password: hashedPassword,
     });
 
     res.status(201).json({
@@ -61,11 +64,12 @@ export const registerUser = async (req, res) => {
   }
 };
 
-
 // 🔥 LOGIN USER
 export const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
+
+    console.log("LOGIN BODY:", req.body);
 
     if (!email || !password) {
       return res.status(400).json({
@@ -76,6 +80,8 @@ export const loginUser = async (req, res) => {
 
     const user = await User.findOne({ email });
 
+    console.log("USER FOUND:", user);
+
     if (!user) {
       return res.status(400).json({
         success: false,
@@ -83,7 +89,6 @@ export const loginUser = async (req, res) => {
       });
     }
 
-    // 🔥 safety check
     if (!user.password) {
       return res.status(400).json({
         success: false,
@@ -91,8 +96,9 @@ export const loginUser = async (req, res) => {
       });
     }
 
-    // 🔥 compare password
     const isMatch = await bcrypt.compare(password, user.password);
+
+    console.log("PASSWORD MATCH:", isMatch);
 
     if (!isMatch) {
       return res.status(400).json({
@@ -120,7 +126,6 @@ export const loginUser = async (req, res) => {
     });
   }
 };
-
 
 // 🔥 GET PROFILE
 export const getUserProfile = async (req, res) => {
