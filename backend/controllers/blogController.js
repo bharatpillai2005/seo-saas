@@ -1,45 +1,66 @@
 import Blog from "../models/blogModel.js";
-import axios from "axios";
-// 🔥 Create Blog
+
+
+// 🔥 CREATE BLOG
 export const createBlog = async (req, res) => {
   try {
     const { title, keywords, content } = req.body;
 
+    // validation
     if (!title || !content) {
-      return res.status(400).json({ message: "Title and content required" });
+      return res.status(400).json({
+        success: false,
+        message: "Title and content are required",
+      });
     }
 
+    // create blog
     const blog = await Blog.create({
-      user: req.user, // must be user id
       title,
       keywords,
       content,
     });
 
-    res.status(201).json(blog);
+    res.status(201).json({
+      success: true,
+      message: "Blog created successfully",
+      blog,
+    });
 
   } catch (error) {
     console.log("Create Blog Error:", error);
-    res.status(500).json({ message: "Server Error" });
+    res.status(500).json({
+      success: false,
+      message: "Server Error",
+    });
   }
 };
 
-// 🔥 Get My Blogs
+
+
+// 🔥 GET ALL BLOGS
 export const getMyBlogs = async (req, res) => {
   try {
-    const blogs = await Blog.find({ user: req.user }).sort({
-      createdAt: -1,
+    const blogs = await Blog.find().sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      count: blogs.length,
+      blogs,
     });
 
-    res.json(blogs);
-
   } catch (error) {
-    console.log("Get Blog Error:", error);
-    res.status(500).json({ message: "Server Error" });
+    console.log("Get Blogs Error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server Error",
+    });
   }
 };
 
-// 🔥 Update Blog
+
+
+// 🔥 UPDATE BLOG
 export const updateBlog = async (req, res) => {
   try {
     const { title, keywords, content } = req.body;
@@ -47,46 +68,60 @@ export const updateBlog = async (req, res) => {
     const blog = await Blog.findById(req.params.id);
 
     if (!blog) {
-      return res.status(404).json({ message: "Blog not found" });
+      return res.status(404).json({
+        success: false,
+        message: "Blog not found",
+      });
     }
 
-    if (blog.user.toString() !== req.user.toString()) {
-      return res.status(401).json({ message: "Not authorized" });
-    }
-
+    // update fields
     blog.title = title || blog.title;
     blog.keywords = keywords || blog.keywords;
     blog.content = content || blog.content;
 
     const updatedBlog = await blog.save();
 
-    res.json(updatedBlog);
+    res.status(200).json({
+      success: true,
+      message: "Blog updated successfully",
+      blog: updatedBlog,
+    });
 
   } catch (error) {
     console.log("Update Blog Error:", error);
-    res.status(500).json({ message: "Server Error" });
+    res.status(500).json({
+      success: false,
+      message: "Server Error",
+    });
   }
 };
 
-// 🔥 Delete Blog
+
+
+// 🔥 DELETE BLOG
 export const deleteBlog = async (req, res) => {
   try {
     const blog = await Blog.findById(req.params.id);
 
     if (!blog) {
-      return res.status(404).json({ message: "Blog not found" });
-    }
-
-    if (blog.user.toString() !== req.user.toString()) {
-      return res.status(401).json({ message: "Not authorized" });
+      return res.status(404).json({
+        success: false,
+        message: "Blog not found",
+      });
     }
 
     await blog.deleteOne();
 
-    res.json({ message: "Blog deleted successfully" });
+    res.status(200).json({
+      success: true,
+      message: "Blog deleted successfully",
+    });
 
   } catch (error) {
     console.log("Delete Blog Error:", error);
-    res.status(500).json({ message: "Server Error" });
+    res.status(500).json({
+      success: false,
+      message: "Server Error",
+    });
   }
 };
